@@ -114,27 +114,25 @@ def vector_to_raster(vector_images, side=28, line_diameter=16, padding=16, bg_co
     
     return raster_images
 def Preprocess(drawing):
-    # Flatten the strokes and separate into x, y coordinates
     all_x = np.concatenate([stroke[0] for stroke in drawing])
     all_y = np.concatenate([stroke[1] for stroke in drawing])
 
-    # Align to top-left
+    # Align the drawing so that 0 is the top most left corner
     min_x, min_y = np.min(all_x), np.min(all_y)
     aligned_drawing = [[[x - min_x for x in stroke[0]], 
                         [y - min_y for y in stroke[1]]] for stroke in drawing]
 
-    # Uniform scaling
+    # Scale the drawing so that it fits a 256 by 256 screen
     max_dim = max(np.max(all_x) - min_x, np.max(all_y) - min_y)
     scale_factor = 255 / max_dim
     scaled_drawing = [[[x * scale_factor for x in stroke[0]], 
                        [y * scale_factor for y in stroke[1]]] for stroke in aligned_drawing]
 
-    # Resample strokes with 1 pixel spacing and simplify
+    # Resample strokes with 1 pixel spacing and simplify using the RDP algoirthm
     preprocessed_drawing = []
     for stroke in scaled_drawing:
-        if len(stroke[0]) > 1:  # If the stroke has more than 1 point
+        if len(stroke[0]) > 1: 
             x, y = stroke
-            # Calculate cumulative distance along the stroke
             distances = np.sqrt(np.ediff1d(x, to_begin=0)**2 + np.ediff1d(y, to_begin=0)**2)
             cum_distances = np.cumsum(distances)
             total_distance = cum_distances[-1]
@@ -142,7 +140,6 @@ def Preprocess(drawing):
             # Number of points to interpolate
             num_points = int(total_distance) + 1
             if num_points < 2:
-                # Not enough points to interpolate
                 continue
 
             # Interpolate points
