@@ -10,5 +10,6 @@ echo start SketchClassifier.py "train" >> start_training.bat
 echo cd scripts > start_testing.bat
 echo activate.bat >> start_testing.bat
 echo cd .. >> start_testing.bat
-echo start SketchClassifier.py "test" >> start_testing.bat
+echo set /p model=Enter model filename >> start_testing.bat
+echo start SketchClassifier.py "test" "%model%" >> start_testing.bat
 del setup.bat
