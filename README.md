@@ -1,2 +1,2 @@
 # SketchClassifier
-Begin High School final project - Sketch Classifier
+Begin High School Computer Science project - Sketch Classifier
