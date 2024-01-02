@@ -136,6 +136,7 @@ if __name__ == "__main__":
         except BaseException as e:
             print("Error:\n"+str(e))
             input("Press anything to close...")
+        input("Training done. Press anything to close...")
     elif arg == "test":
         model_name = sys.argv[2]
         try:
@@ -143,5 +144,5 @@ if __name__ == "__main__":
         except BaseException as e:
             print("Error:\n"+str(e))
             input("Press anything to close...")
- 
+         
     
