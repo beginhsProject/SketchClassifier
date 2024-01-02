@@ -94,7 +94,10 @@ def main(param_dict):
 def test(model_name):
     from draw_board import SketchApp, Preprocess
     model = keras.models.load_model(model_name)
-    # Gets a 28 by 28 numpy array and returns the model's guess
+    class_names = ['airplane', 'alarm clock', 'ambulance', 'angel',
+               'anvil', 'apple', 'arm', 'axe',
+               'backpack', 'banana', 'bandage', 'barn',
+               'bat', 'boomerang', 'bowtie', 'The Eiffel Tower']
     def predict(image):
         pre= Preprocess(image) 
         prediction_matrix = model.predict(pre)
