@@ -93,7 +93,7 @@ def main(param_dict):
 
 
 def test(model_name):
-    from draw_board_v3 import SketchApp, Preprocess
+    from draw_board import SketchApp, Preprocess
     model = keras.models.load_model(model_name)
     # Gets a 28 by 28 numpy array and returns the model's guess
     def predict(image):
