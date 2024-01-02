@@ -135,14 +135,14 @@ if __name__ == "__main__":
             train(param_dict)
         except BaseException as e:
             print("Error:\n"+str(e))
-            input("Press anything to close...")
-        input("Training done. Press anything to close...")
+            input("Press anything to close this window.")
+        input("Training is done. Press anything to close this window.")
     elif arg == "test":
         model_name = sys.argv[2]
         try:
             test(model_name)
         except BaseException as e:
             print("Error:\n"+str(e))
-            input("Press anything to close...")
+            input("Press anything to close this window.")
          
     
