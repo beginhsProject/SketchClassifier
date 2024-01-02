@@ -59,9 +59,8 @@ def load_data(size=10000,data_folder="datasets"):
 
 
 def augmentData(features, labels):
-    features = np.append(features, features[:, :, ::-1], axis=0)
-    labels = np.append(labels, -labels, axis=0)
-    return features, labels
+    pass
+    # Needs to be added
 
 
 
