@@ -6,7 +6,7 @@ import sklearn
 import numpy as np
 import os
 import time
-
+import sys
 
 
 def create_model(param_dict, num_classes):
@@ -90,6 +90,23 @@ def main(param_dict):
             f.write(str(param_dict))
 
 
+
+
+def test(model_name):
+    from draw_board_v3 import SketchApp, Preprocess
+    model = keras.models.load_model(model_name)
+    # Gets a 28 by 28 numpy array and returns the model's guess
+    def predict(image):
+        pre= Preprocess(image) 
+        prediction_matrix = model.predict(pre)
+        prediction_index = np.argmax(prediction_matrix[0])
+        prediction = class_names[prediction_index] + f" with {prediction_matrix[0][prediction_index]*100}% certainty"
+
+        return prediction
+        
+    canvas = SketchApp(predict)
+    canvas.run()
+
 param_dict= {
     # Model parameters
     "conv_layers": [(64,(5,5)),(64,(5,5))], # Enter the amount of filters and kernel size as a tuple
@@ -110,25 +127,21 @@ param_dict= {
     "model_name": "30-15-dropout" , # Name of the model
     "save_param_dict": True # Whether or not to save the param dict as a file
     
-    }
-
-def test(model_name):
-    from draw_board_v3 import SketchApp, Preprocess
-    model = keras.models.load_model(model_name)
-    # Gets a 28 by 28 numpy array and returns the model's guess
-    def predict(image):
-        pre= Preprocess(image) 
-        prediction_matrix = model.predict(pre)
-        prediction_index = np.argmax(prediction_matrix[0])
-        prediction = class_names[prediction_index] + f" with {prediction_matrix[0][prediction_index]*100}% certainty"
-
-        return prediction
-        
-    canvas = SketchApp(predict)
-    canvas.run()
-        
-#main(param_dict)
-test("30-15-dropout.h5")
-
+    }       
+if __name__ == "__main__":
+    arg = sys.argv[1]
+    if arg == "train":
+        try:
+            train(param_dict)
+        except BaseException as e:
+            print("Error:\n"+str(e))
+            input("Press anything to close...")
+    elif arg == "test":
+        model_name = sys.argv[2]
+        try:
+            test(model_name)
+        except BaseException as e:
+            print("Error:\n"+str(e))
+            input("Press anything to close...")
  
     
