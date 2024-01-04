@@ -2,7 +2,7 @@ python -m venv "%cd%"
 cd scripts
 activate.bat
 cd ..
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 echo cd scripts > start_training.bat
 echo activate.bat >> start_training.bat
 echo cd .. >> start_training.bat
