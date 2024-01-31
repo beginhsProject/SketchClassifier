@@ -7,6 +7,7 @@ import numpy as np
 import os
 import time
 from tqdm.auto import tqdm
+import sys
 
 
 # Function to create the model
@@ -154,9 +155,9 @@ def write_data(size_per_class=10000,split_size=100,training_to_test_ratio=0.2,da
 
 # a class to make tensorboard work with model.fit multiple times
 class FixedTensorBoard(keras.callbacks.TensorBoard):
-    def __init__(self, *args, **kwargs):
+    def __init__(self,start_from_epoch=0, *args, **kwargs):
         super(FixedTensorBoard, self).__init__(*args, **kwargs)
-        self.epoch_counter = 0
+        self.epoch_counter = start_from_epoch
 
     def on_epoch_end(self, epoch, logs=None):
         super(FixedTensorBoard, self).on_epoch_end(self.epoch_counter, logs)
@@ -206,7 +207,7 @@ def train(param_dict):
         return image, label
 
     # Create a tensorboard callback to analyze the training
-    fixed_tensorboard = FixedTensorBoard(log_dir=model_dir)
+    fixed_tensorboard = FixedTensorBoard(start_from_epoch,log_dir=model_dir)
     split_amount = total_size // split_size
 
     if not total_size % split_size:
@@ -255,7 +256,7 @@ def train(param_dict):
         train_dataset = create_train_data()
         model.fit(train_dataset, steps_per_epoch=steps_per_epoch, validation_data=val_data, validation_steps=val_steps, epochs=1, callbacks=[fixed_tensorboard])
         print(f"Epoch {epoch+1+start_from_epoch}/{param_dict['total_epochs']+start_from_epoch} done!")
-        if save_model_checkpoints and epoch+1% checkpoints_interval==0:
+        if save_model_checkpoints and (epoch+1)% checkpoints_interval==0:
           print("Saving checkpoint...")
           model.save(f"{model_dir}/e{epoch+1+start_from_epoch}.h5")
           print("Checkpoint saved!")
@@ -338,5 +339,3 @@ if __name__ == "__main__":
             print("Error:\n"+str(e))
             input("Press anything to close this window.")
         exit()
- 
-    
