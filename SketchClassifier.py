@@ -167,6 +167,8 @@ def train(param_dict):
     split_size = 100 # the split size of the data when converting it to tfrecords format.
     # Changing it to a number which is not a multiple of 100 may result in more training data and less validation data than expected.
     class_names,total_size = write_data(param_dict['size_per_class'], split_size, param_dict['training_to_test_ratio'])
+    # sort the class names alphabethically
+    class_names = sorted(class_names,key=str.casefold)
     num_classes = len(class_names)
     # create parameters based on the param_dict
     size_per_class = param_dict['size_per_class']
