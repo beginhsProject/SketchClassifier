@@ -5,7 +5,7 @@ from scipy.interpolate import interp1d
 from scipy.spatial import KDTree
 from scipy.spatial.distance import euclidean
 from rdp import rdp
-
+from PIL import ImageDraw, Image
 class SketchApp:
     def __init__(self, predict):
         # Initialize the TKinter window with white background, width 1000 and height 600.
@@ -16,7 +16,9 @@ class SketchApp:
 
         self.drawing_data = []  # List of the drawing data
         self.current_stroke = [] # List to store the current stroke
-
+        self.pil_img = Image.new("RGB", (1000, 600), 'white') # create pillow image (used to save the sketch as a png)
+        self.drawing = ImageDraw.Draw(self.pil_img) # draw on the pillow image
+        
         self.canvas.bind("<Button-1>", self.start_stroke) # Bind the click action to creating a stroke
         self.canvas.bind("<ButtonRelease-1>", self.end_stroke) # Bind the releasing click action to ending the stroke
         self.canvas.bind("<B1-Motion>", self.draw) # Bind mouse movement to drawing the stroke
@@ -27,34 +29,40 @@ class SketchApp:
         clear_button.pack()
         self.text_display = tk.Label(self.root, text="") # Create a textbox to display the model's prediction
         self.text_display.pack()
+        
     def start_stroke(self, event):
         self.current_stroke = [[], []]  # Reset current stroke
         self.add_point(event.x, event.y) # Add the starting point to the stroke
     def save_sketch(self):
-      pass
+        self.pil_img.save("sketch.png")
     def clear_canvas(self):
       self.canvas.delete("all") # clear the canvas
       self.drawing_data = [] # reset the drawing data
+      # reset the pillow drawing
+      self.pil_img = Image.new("RGB", (1000, 600), 'white') 
+      self.drawing = ImageDraw.Draw(self.pil_img)
     def end_stroke(self, event):
         self.add_point(event.x, event.y) # add the last point to the current stroke
         self.drawing_data.append(self.current_stroke) # save the current stroke
         predicted_text = self.predict(self.drawing_data) # predict the current drawing
         self.text_display.config(text=predicted_text) # display the prediction
-        Preprocess(self.drawing_data)
 
     def add_point(self, x, y):
         self.current_stroke[0].append(x) 
         self.current_stroke[1].append(y)
-
+        
     def draw(self, event):
         self.add_point(event.x, event.y)
         if len(self.current_stroke[0]) > 1:
-            # Draw line segment connecting the last two points
+            # Draw line segment connecting the last two points on the canvas
             self.canvas.create_line(
                 self.current_stroke[0][-2], self.current_stroke[1][-2],
                 self.current_stroke[0][-1], self.current_stroke[1][-1],
                 fill="black", 
             )
+            self.drawing.line([self.current_stroke[0][-2], self.current_stroke[1][-2],
+                self.current_stroke[0][-1], self.current_stroke[1][-1]],
+                fill="black") # draw the same line on the pillow drawing
 
     def run(self):
         self.root.mainloop()
@@ -147,12 +155,9 @@ def Preprocess(drawing):
             alpha = np.linspace(0, total_distance, num_points)
             rx, ry = fx(alpha), fy(alpha)
             resampled = np.stack((rx, ry), axis=-1)
-
-            preprocessed_drawing.append(resampled)
-    preprocessed_drawing = ramer_douglas_peucker(preprocessed_drawing)
-    preprocessed_drawing = [[preprocessed_drawing[:, 0], preprocessed_drawing[:, 1]]]
-    preprocessed_drawing = vector_to_raster([preprocessed_drawing])[0]
-    # Transform the simplified drawing into the numpy bitmap format   
+            simplified = ramer_douglas_peucker(resampled)
+            preprocessed_drawing.append([simplified[:, 0], simplified[:, 1]])
+    # Transform the simplified drawing into the numpy bitmap format
     preprocessed_drawing = vector_to_raster([preprocessed_drawing])[0]
     # Reshape and normalize
     preprocessed_drawing = preprocessed_drawing.reshape(1,28,28,1) / 255
